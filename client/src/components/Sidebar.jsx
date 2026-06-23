@@ -2,9 +2,17 @@ import React, { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { assets } from '../assets/assets'
 import moment from 'moment'
+import toast from 'react-hot-toast'
 
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
-  const { chats, setSelectedChat, theme, setTheme, user, navigate } = useAppContext()
+  const { chats, setSelectedChat, theme, setTheme, user, navigate,craeteNewChat,axios,
+    setChats,fetchUserChats,setToken} = useAppContext()
+    
+    const logout=()=>{
+      localStorage.removeItem('token')
+      setToken(null)
+      toast.success('Logged out Successfully')
+    }
   const [search, setSearch] = useState('')
   return (
     <div className={`flex flex-col h-screen min-w-72 p-5 dark:bg-linear-to-b
@@ -87,7 +95,9 @@ rounded-md'>
 rounded-md cursor-pointer group'>
         <img src={assets.user_icon} alt="" className='w-7 rounded-full' />
         <p className='flex-1 text-sm dark:text-primary truncate'>{user ? user.name : 'Login your account'}</p>
-        {user && <img src={assets.logout_icon} className='h-5 cursor-pointer hidden
+        {user && <img 
+        onClick={logout}
+        src={assets.logout_icon} className='h-5 cursor-pointer hidden
         not-dark:invert group-hover:block'/>}
       </div>
 

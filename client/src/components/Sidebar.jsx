@@ -3,16 +3,33 @@ import { useAppContext } from '../context/AppContext'
 import { assets } from '../assets/assets'
 import moment from 'moment'
 import toast from 'react-hot-toast'
-
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
-  const { chats, setSelectedChat, theme, setTheme, user, navigate,craeteNewChat,axios,
-    setChats,fetchUserChats,setToken} = useAppContext()
+  const { chats, setSelectedChat, theme, setTheme, user, navigate,createNewChat,axios,
+    setChats,fetchUserChats,setToken,token} = useAppContext()
     
     const logout=()=>{
       localStorage.removeItem('token')
       setToken(null)
       toast.success('Logged out Successfully')
     }
+
+const deleteChat=async(e,chatId)=>{
+try {
+  e.stopPropagation()
+  const confirm=window.confirm('Are you sure you want to delet this chat?')
+  if(!confirm) return
+  const {data}=await axios.post('/api/chat/delete',{chatId},{headers:{Authorization:token}})
+
+  if(data.success){
+    setChats(prev=>prev.filter(chat=>chat._id!==chatId))
+    await fetchUserChats()
+    toast.success(data.message)
+  }
+} catch (error) {
+  toast.error(error.message)
+}
+}
+
   const [search, setSearch] = useState('')
   return (
     <div className={`flex flex-col h-screen min-w-72 p-5 dark:bg-linear-to-b
@@ -21,7 +38,9 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
       <img src={theme === 'dark' ? assets.logo_full : assets.logo_full_dark}
         className='w-full max-w-48' />
 
-      <button className='flex justify-center items-center w-full py-2 mt-10 text-white bg-linear-to-r
+      <button 
+      onClick={createNewChat}
+      className='flex justify-center items-center w-full py-2 mt-10 text-white bg-linear-to-r
 from-[#A456F7] to-[#3D81F6] text-sm rounded-md cursor-pointer'>
         <span className='mr-2 text-xl'>+</span>New Chat
       </button>
@@ -49,7 +68,8 @@ dark:border-white/10 rounded-md'>
                 <p className='text-xs text-gray-500 dark:text-[#B1A6C0]'>{moment(chat.updatedAt).fromNow()}</p>
               </div>
               <img src={assets.bin_icon} alt="" className='hidden group-hover:block
-    w-4 cursor-pointer not-dark:invert'/>
+    w-4 cursor-pointer not-dark:invert'
+    onClick={e=>toast.promise(deleteChat(e,chat._id),{loading:'Deleting...'})}/>
             </div>
           ))}
       </div>

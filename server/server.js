@@ -19,7 +19,13 @@ app.post('/api/stripe',express.raw({type:"application/json"}),stripeWebhooks)
 
 
 // middleware
-app.use(cors())
+app.use(cors({
+    origin:[
+        "http://localhost:5173",
+        "https://quickgpt-wine.vercel.app"
+    ],
+    credentials:true
+}))
 app.use(express.json())
 
 // routes
